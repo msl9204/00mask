@@ -4,11 +4,7 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware, compose } from "redux";
 import logger from "redux-logger";
 import thunk from "redux-thunk";
-import {
-    createMuiTheme,
-    makeStyles,
-    ThemeProvider,
-} from "@material-ui/core/styles";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 
 import rootReducer from "./_reducers";
 import "./index.css";
@@ -23,7 +19,7 @@ const store = createStore(
 
 const theme = createMuiTheme({
     palette: {
-        type: "dark",
+        type: "light",
     },
 });
 
