@@ -3,6 +3,8 @@ import produce from "immer";
 const baseState = {
     loading: false,
     error: "",
+    mapCenter: [37.3595704, 127.105399],
+    mapZoom: 14,
     stores: [
         {
             addr: "서울특별시 서대문구 수색로 32 (남가좌동)",
@@ -62,6 +64,17 @@ const baseState = {
     ],
 };
 
-const reducer = produce((state, action) => {}, baseState);
+const reducer = produce((state, action) => {
+    switch (action.type) {
+        case "SET_MAP_ZOOM":
+            state.mapZoom = action.payload;
+            break;
+        case "SET_MAP_CENTER":
+            state.mapCenter = action.payload;
+            break;
+        default:
+            break;
+    }
+}, baseState);
 
 export default reducer;

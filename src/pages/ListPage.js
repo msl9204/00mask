@@ -61,7 +61,7 @@ const ListPage = () => {
 
             <List className={classes.root}></List>
             {stores.map((store) => (
-                <StoreItem store={store} />
+                <StoreItem key={store.code} store={store} />
             ))}
             <BottomNav />
         </React.Fragment>
