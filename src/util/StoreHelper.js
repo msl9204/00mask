@@ -33,6 +33,7 @@ export default function StoreHelper(store) {
     const idx = stat2idx(store.remain_stat);
 
     return {
+        idx: idx,
         color: COLOR[idx],
         desc: DESC[idx],
         short: SHORT[idx],
