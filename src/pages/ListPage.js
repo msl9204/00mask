@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import AppBar from "../components/AppBar";
 import BottomNav from "../components/BottomNav";
 import { makeStyles } from "@material-ui/core/styles";
@@ -60,7 +61,7 @@ const ListPage = () => {
             <AppBar />
 
             <List className={classes.root}></List>
-            {stores.map((store) => (
+            {_.map(stores, (store) => (
                 <StoreItem key={store.code} store={store} />
             ))}
             <BottomNav />
