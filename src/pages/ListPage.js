@@ -10,6 +10,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import StorefrontIcon from "@material-ui/icons/Storefront";
 import { useSelector } from "react-redux";
 import StoreHelper from "../util/StoreHelper";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,7 +29,7 @@ const StoreItem = ({ store }) => {
     const { color, desc } = StoreHelper(store);
 
     return (
-        <ListItem>
+        <ListItem button={true} component={Link} to={`/stores/${store.code}`}>
             <ListItemIcon>
                 <StorefrontIcon style={{ color }} />
             </ListItemIcon>

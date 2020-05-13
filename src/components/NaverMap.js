@@ -2,9 +2,8 @@
 
 import React from "react";
 import _ from "lodash";
+import { withRouter } from "react-router";
 import { styled } from "@material-ui/core/styles";
-import { connect } from "react-redux";
-import { setMapZoom, setMapCenter } from "../_actions";
 
 import pinGreen from "../green.png";
 import pinBlack from "../black.png";
@@ -15,7 +14,7 @@ import StoreHelper from "../util/StoreHelper";
 
 const MapDiv = styled("div")({
     width: "100%",
-    height: "100vh",
+    height: "100%",
 });
 
 class NaverMap extends React.Component {
@@ -32,15 +31,16 @@ class NaverMap extends React.Component {
         }
 
         if (
-            this.props.zoom !== nextProps.mapZoom ||
-            this.props.stores !== nextProps.mapstores
+            this.props.zoom !== nextProps.zoom ||
+            this.props.stores !== nextProps.stores ||
+            this.props.pinned !== nextProps.pinned
         ) {
-            this.loadPins(nextProps.stores);
+            this.loadPins(nextProps.stores, nextProps.pinned);
         }
         return false;
     }
 
-    loadPins(stores) {
+    loadPins(stores, pinned) {
         const icons = [
             pinBlack,
             pinGrey,
@@ -51,6 +51,17 @@ class NaverMap extends React.Component {
         ];
 
         var bounds = this.map.getBounds();
+        if (this.pinMaker) {
+            this.pinMaker.setMap(null);
+            this.pinMaker = null;
+        }
+        if (pinned && bounds.hasLatLng({ lat: pinned[0], lng: pinned[1] })) {
+            this.pinMaker = new naver.maps.Marker({
+                position: new naver.maps.LatLng(...pinned),
+                map: this.map,
+                zIndex: 10, // zIndex는 앞에오는 순서!
+            });
+        }
         _.each(stores, (store) => {
             if (this.markers[store.code]) {
                 return;
@@ -60,6 +71,7 @@ class NaverMap extends React.Component {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(store.lat, store.lng),
                     map: this.map,
+                    clickable: true,
                     zIndex: idx === 5 ? 0 : idx, // zIndex는 앞에오는 순서!
                     icon: {
                         url: icons[idx],
@@ -68,7 +80,9 @@ class NaverMap extends React.Component {
                         anchor: new naver.maps.Point(32, 50),
                     },
                 });
-
+                naver.maps.Event.addListener(marker, "click", () => {
+                    this.props.history.push(`/stores/${store.code}`);
+                });
                 this.markers[store.code] = marker;
             } else {
             }
@@ -76,12 +90,12 @@ class NaverMap extends React.Component {
     }
 
     componentDidMount() {
-        const { mapCenter, mapZoom, dispatch } = this.props;
+        const { center, zoom } = this.props;
         const node = this.mapRef.current;
 
         var mapOptions = {
-            center: new naver.maps.LatLng(...mapCenter),
-            zoom: mapZoom,
+            center: new naver.maps.LatLng(...center),
+            zoom: zoom,
             scaleControl: true,
             mapTypeControl: true,
             zoomControl: true,
@@ -91,30 +105,26 @@ class NaverMap extends React.Component {
 
         naver.maps.Event.addListener(this.map, "dragend", () => {
             const coord = this.map.getCenter();
-
-            dispatch(setMapCenter([coord.lat(), coord.lng()]));
-            this.loadPins(this.props.stores);
+            this.props.onChangeCenter &&
+                this.props.onChangeCenter([coord.lat(), coord.lng()]);
+            this.loadPins(this.props.stores, this.props.pinned);
         });
         naver.maps.Event.addListener(this.map, "zoom_changed", (zoom) => {
-            dispatch(setMapZoom(zoom));
+            this.props.onChangeZoom && this.props.onChangeZoom(zoom);
         });
 
-        this.loadPins();
+        this.loadPins(this.props.stores, this.props.pinned);
         console.log("MAP INITIALIZED!!!!");
     }
 
     render() {
-        console.log("RENDER!!!!!");
-        if (this.map) {
-            this.loadPins();
-        }
+        // console.log("RENDER!!!!!");
+        // if (this.map) {
+        //     this.loadPins();
+        // }
 
         return <MapDiv ref={this.mapRef} />;
     }
 }
 
-function mapStateToProps(state) {
-    const { mapCenter, mapZoom, stores } = state;
-    return { mapCenter, mapZoom, stores };
-}
-export default connect(mapStateToProps)(NaverMap);
+export default withRouter(NaverMap);

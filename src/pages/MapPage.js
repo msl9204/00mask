@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import AppBar from "../components/AppBar";
 import { makeStyles } from "@material-ui/core/styles";
-
+import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
 import NaverMap from "../components/NaverMap";
-import { fetchStoresByGeo } from "../_actions";
-import { useDispatch, useSelector } from "react-redux";
+import { setMapCenter, setMapZoom } from "../_actions";
 
 const useStyles = makeStyles((theme) => ({
     mapWrapper: {
@@ -16,19 +15,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MapPage = () => {
-    const dispatch = useDispatch();
     const classes = useStyles();
-    const center = useSelector((state) => state.center);
-
-    useEffect(() => {
-        dispatch(fetchStoresByGeo(...center, 5000));
-    }, [dispatch, center]);
+    const dispatch = useDispatch();
+    const stores = useSelector((state) => state.stores);
+    const mapCenter = useSelector((state) => state.mapCenter);
+    const mapZoom = useSelector((state) => state.mapZoom);
 
     return (
         <React.Fragment>
             <AppBar />
             <div className={classes.mapWrapper}>
-                <NaverMap />
+                <NaverMap
+                    stores={stores}
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    onChangeCenter={(center) => {
+                        dispatch(setMapCenter(center));
+                    }}
+                    onChangeZoom={(zoom) => {
+                        dispatch(setMapZoom(zoom));
+                    }}
+                />
             </div>
             <BottomNav />
         </React.Fragment>
